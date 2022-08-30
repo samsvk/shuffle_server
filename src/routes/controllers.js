@@ -6,7 +6,7 @@ const createNewEmail = async (req, res) => {
   const redirectChildEmail = randomEmailGenerator();
   const emaildb = new email({
     ...newEmailObj,
-    childEmail: [redirectChildEmail],
+    childEmails: [redirectChildEmail],
     createdAt: new Date().toISOString(),
   });
   try {
