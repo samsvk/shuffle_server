@@ -1,12 +1,17 @@
-const doSomething = async (req, res) => {
+import { email } from "../models/db.js";
+
+const createNewEmail = async (req, res) => {
+  const newEmailObj = req.body;
+  const emaildb = new email({
+    ...newEmailObj,
+    createdAt: new Date().toISOString(),
+  });
   try {
-    console.log("hitting this my g");
-    return res.json({
-      working: true,
-    });
+    await emaildb.save();
+    res.status(201).json(emaildb);
   } catch (error) {
-    return res.status(404).json({ message: error.message });
+    res.status(409).json({ message: error.message });
   }
 };
 
-export { doSomething };
+export { createNewEmail };

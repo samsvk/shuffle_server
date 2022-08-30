@@ -1,6 +1,12 @@
 import express from "express";
-import { doSomething } from "./controllers.js";
+import { createNewEmail } from "./controllers.js";
 
 export const router = express.Router();
 
-router.get("/", doSomething);
+router.get("/", () =>
+  res.json({
+    working: true,
+  })
+);
+
+router.post("/create", createNewEmail);
