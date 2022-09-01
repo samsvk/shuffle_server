@@ -5,7 +5,7 @@ import { router as emailRouter } from "./routes/index.js";
 import { corsDefaults } from "./consts.js";
 import { db } from "./models/db.js";
 
-const PORT = process.env.port || 3001;
+const PORT = Process.env.PORT || 3001;
 const app = express();
 
 app.use(cors(corsDefaults));
