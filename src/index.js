@@ -16,6 +16,11 @@ db.then(() => console.log("DB connected")).catch((err) =>
 );
 app.listen(PORT, () => console.log(`Now listening on ${PORT}`));
 
+app.use("/", (req, res) =>
+  res.json({
+    msg: "hello working",
+  })
+);
 app.use("/email", emailRouter);
 
 app.post("/incoming_mails/", (req, res) => {
