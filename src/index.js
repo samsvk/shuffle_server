@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { router as emailRouter } from "./routes/index.js";
+// import { router as emailRouter } from "./routes/index.js";
 import { corsDefaults } from "./consts.js";
 // import { db } from "./models/db.js";
 
