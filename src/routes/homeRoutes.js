@@ -66,6 +66,7 @@ router.get("/", async (req, res) => {
     )
       .then((resp) => resp.json())
       .then(async (data) => {
+        console.log(data.tracks.items[0]);
         const newTrack =
           data.tracks.items[generateRandomNumber()].track;
         const info = {
