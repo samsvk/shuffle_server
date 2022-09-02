@@ -1,21 +1,44 @@
 import express from "express";
 import fetch from "node-fetch";
-import querystring from "querystring";
-
-function generateRandomLetter() {
-  const alphabet = "abcdefghijklmnopqrstuvwxyz";
-  return alphabet[Math.floor(Math.random() * alphabet.length)];
-}
-
+import { generateRandomLetter } from "../utils.js";
+import dotenv from "dotenv";
 export const router = express.Router();
+dotenv.config();
+
+const basic = Buffer.from(
+  `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
+).toString("base64");
+
+const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
+
+const getAccessToken = async () => {
+  const response = await fetch(
+    `https://accounts.spotify.com/api/token`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${basic}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+      }),
+    }
+  );
+
+  return response.json();
+};
 
 router.get("/", async (req, res) => {
+  const { access_token } = await getAccessToken();
+
   async function randomSpotifyAritst() {
     await fetch(
-      `https://api.spotify.com/v1/search?q="%25${generateRandomLetter()}%25"k&type=track&limit=1`,
+      `https://api.spotify.com/v1/search?q="%25${generateRandomLetter()}%25"k&type=artist&limit=1`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.OAUTH_TOKEN}`,
+          Authorization: `Bearer ${access_token}`,
           Accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -23,11 +46,10 @@ router.get("/", async (req, res) => {
     )
       .then((resp) => resp.json())
       .then((data) => {
-        console.log(data.tracks.items);
-      });
+        console.log(data);
+        res.status(200).json({ data });
+      })
+      .catch((err) => console.log(err));
   }
-
   await randomSpotifyAritst();
-
-  res.status(201).json({ working: true });
 });
