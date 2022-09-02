@@ -5,7 +5,7 @@ export function randomEmailGenerator() {
   return `${rngHash}@${url}`;
 }
 
-export function generateRandomLetter() {
-  const alphabet = "abcdefghijklmnopqrstuvwxyz";
-  return alphabet[Math.floor(Math.random() * alphabet.length)];
+export function generateRandomNumber() {
+  const nums = [...Array(50).keys()];
+  return nums[Math.floor(Math.random() * nums.length)];
 }

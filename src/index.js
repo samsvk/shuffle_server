@@ -16,17 +16,7 @@ const app = express();
 
 app.use(cors(corsDefaults));
 app.use(express.json());
-// app.use(urlencoded({ extended: true }));
 app.listen(PORT, () => console.log(`Now listening on ${PORT}`));
 
-// app.use("/", (req, res) =>
-//   res.json({
-//     msg: "hello working",
-//   })
-// );
-
 app.use("/", authRouter);
-
 app.use("/home", homeRouter);
-
-// app.use("/email", emailRouter);
