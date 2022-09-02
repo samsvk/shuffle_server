@@ -1,29 +1,30 @@
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
-// import { router as emailRouter } from "./routes/index.js";
+import dotenv from "dotenv";
 import { corsDefaults } from "./consts.js";
+// import { router as emailRouter } from "./routes/index.js";
 // import { db } from "./models/db.js";
+// db.then(() => console.log("DB connected")).catch((err) =>
+//   console.log(err)
+// );
+// const PORT = process.env.PORT || 3001;
+import { router as authRouter } from "./routes/authRoutes.js";
 
-const PORT = process.env.PORT || 3001;
+dotenv.config();
+const PORT = process.env.PORT;
 const app = express();
 
 app.use(cors(corsDefaults));
 app.use(express.json());
-app.use(bodyParser.json());
-// db.then(() => console.log("DB connected")).catch((err) =>
-//   console.log(err)
-// );
+// app.use(urlencoded({ extended: true }));
 app.listen(PORT, () => console.log(`Now listening on ${PORT}`));
 
-app.use("/", (req, res) =>
-  res.json({
-    msg: "hello working",
-  })
-);
-// app.use("/email", emailRouter);
+// app.use("/", (req, res) =>
+//   res.json({
+//     msg: "hello working",
+//   })
+// );
 
-app.post("/incoming_mails/", (req, res) => {
-  const mail = req.body;
-  res.status(201).json(mail);
-});
+app.use("/", authRouter);
+
+// app.use("/email", emailRouter);

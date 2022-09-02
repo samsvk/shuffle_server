@@ -1,12 +1,12 @@
-// import express from "express";
-// import { createNewEmail } from "./controllers.js";
+import express from "express";
+import { createNewEmail } from "./controllers.js";
 
-// export const router = express.Router();
+export const router = express.Router();
 
-// router.get("/", () =>
-//   res.json({
-//     working: true,
-//   })
-// );
+router.get("/", () =>
+  res.json({
+    working: true,
+  })
+);
 
-// router.post("/create", createNewEmail);
+router.post("/create", createNewEmail);
