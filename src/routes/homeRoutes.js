@@ -41,10 +41,12 @@ async function fetchArtistDetails(access_token, person) {
   )
     .then((resp) => resp.json())
     .then((data) => {
+      console.log(data.followers.total);
       return {
         genres: data.genres,
         image: data.images[0].url,
         name: data.name,
+        followers: data.followers.total,
       };
     });
   return info;
@@ -66,7 +68,6 @@ router.get("/", async (req, res) => {
     )
       .then((resp) => resp.json())
       .then(async (data) => {
-        console.log(data.tracks.items[0]);
         const newTrack =
           data.tracks.items[generateRandomNumber()].track;
         const info = {
