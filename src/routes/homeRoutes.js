@@ -41,7 +41,6 @@ async function fetchArtistDetails(access_token, person) {
   )
     .then((resp) => resp.json())
     .then((data) => {
-      console.log(data.followers.total);
       return {
         genres: data.genres,
         image: data.images[0].url,
