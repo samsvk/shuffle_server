@@ -66,21 +66,25 @@ router.get("/", async (req, res) => {
       }
     )
       .then((resp) => resp.json())
-      .then(async (data) => {
-        const newTrack =
-          data.tracks.items[generateRandomNumber()].track;
-        const info = {
-          artists: newTrack.artists.map((item) => item.name),
-          name: newTrack.name,
-          image: newTrack.album.images[0].url,
-          mainArtistInfo: await fetchArtistDetails(
-            access_token,
-            newTrack.artists[0].id
-          ),
-        };
+      .then((data) => {
+        const info = [1, 2, 3, 4, 5].map(async (item) => {
+          const track =
+            data.tracks.items[generateRandomNumber()].track;
+          return {
+            artists: track.artists.map((item) => item.name),
+            name: track.name,
+            image: track.album.images[0].url,
+            mainArtistInfo: await fetchArtistDetails(
+              access_token,
+              track.artists[0].id
+            ),
+          };
+        });
 
-        res.status(200).json({
-          data: info,
+        Promise.all(info).then((results) => {
+          res.status(200).json({
+            data: results,
+          });
         });
       })
       .catch((err) => console.log(err));
