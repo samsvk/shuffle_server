@@ -1,6 +1,5 @@
 import express from "express";
 import fetch from "node-fetch";
-import { generateRandomNumber } from "../utils.js";
 import dotenv from "dotenv";
 export const router = express.Router();
 dotenv.config();
@@ -67,9 +66,13 @@ router.get("/", async (req, res) => {
     )
       .then((resp) => resp.json())
       .then((data) => {
-        const info = [1, 2, 3, 4, 5].map(async (item) => {
-          const track =
-            data.tracks.items[generateRandomNumber()].track;
+        const nums = new Set();
+        while (nums.size !== 5) {
+          nums.add(Math.floor(Math.random() * 49) + 1);
+        }
+
+        const info = [...nums].map(async (item) => {
+          const track = data.tracks.items[item].track;
           return {
             artists: track.artists.map((item) => item.name),
             name: track.name,
