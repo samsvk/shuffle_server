@@ -1,13 +1,5 @@
 import CryptoJS from "crypto-js";
 
-// function encrypt(token) {
-//   return CryptoJS.AES.encrypt(token, "0038");
-// }
-
-// function decrypt(token) {
-//   return CryptoJS.AES.decrypt(token, "0038");
-// }
-
 function encodeFromData(data) {
   return Object.keys(data)
     .map(
