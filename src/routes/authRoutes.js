@@ -1,7 +1,7 @@
 import express from "express";
 import fetch from "node-fetch";
 import querystring from "querystring";
-import { encrypt } from "../utils.js";
+import { enc, dec } from "../utils.js";
 
 function encodeFromData(data) {
   return Object.keys(data)
@@ -44,18 +44,15 @@ router.get("/logged", async (req, res) => {
     .then((resp) => resp.json())
     .then((data) => {
       let query = querystring.stringify(data);
-      // let token = query.split("=")[1];
-      // const encryptedAccessToken = encrypt(token).toString();
-      // res.redirect(
-      //   `http://localhost:3000/lobby?user=${encryptedAccessToken}`
-      // );
-
-      res.redirect(`http://localhost:3000/lobby?${query}`);
+      let token = query.split("=")[1];
+      const at = enc(token);
+      res.redirect(`http://localhost:3000/lobby?at=${at}`);
     });
 });
 
 router.get("/getUser", async (req, res) => {
-  const { access_token } = req.query;
+  const { at } = req.query;
+  const access_token = dec(at);
   await fetch("https://api.spotify.com/v1/me", {
     headers: {
       Authorization: `Bearer ${access_token}`,
@@ -83,7 +80,6 @@ router.post("/getUserPlaylist", async (req, res) => {
   )
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       res.json(data.items);
     });
 });
