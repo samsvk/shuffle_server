@@ -54,7 +54,10 @@ router.get("/getUser", async (req, res) => {
       const playlists = await fetchPlaylists(dec_at, user);
       const data = {
         playlists,
-        user,
+        id: user.id,
+        href: user.external_urls.spotify,
+        image: user.images[0].url,
+        name: user.display_name,
       };
       console.log(data);
       res.json(data);
