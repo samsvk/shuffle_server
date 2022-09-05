@@ -45,9 +45,7 @@ router.get("/logged", async (req, res) => {
     .then((data) => {
       let query = querystring.stringify(data);
       let token = query.split("=")[1];
-      console.log(token);
       const encryptedAccessToken = encrypt(token).toString();
-
       res.redirect(
         `http://localhost:3000/lobby?user=${encryptedAccessToken}`
       );
