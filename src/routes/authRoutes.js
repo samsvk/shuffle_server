@@ -1,6 +1,7 @@
 import express from "express";
 import fetch from "node-fetch";
 import querystring from "querystring";
+import { encrypt } from "../utils.js";
 
 function encodeFromData(data) {
   return Object.keys(data)
@@ -43,7 +44,13 @@ router.get("/logged", async (req, res) => {
     .then((resp) => resp.json())
     .then((data) => {
       let query = querystring.stringify(data);
-      res.redirect(`http://localhost:3000/${query}`);
+      let token = query.split("=")[1];
+      console.log(token);
+      const encryptedAccessToken = encrypt(token).toString();
+
+      res.redirect(
+        `http://localhost:3000/lobby?user=${encryptedAccessToken}`
+      );
     });
 });
 
