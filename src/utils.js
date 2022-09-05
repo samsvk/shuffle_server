@@ -8,6 +8,17 @@ import CryptoJS from "crypto-js";
 //   return CryptoJS.AES.decrypt(token, "0038");
 // }
 
+function encodeFromData(data) {
+  return Object.keys(data)
+    .map(
+      (key) =>
+        encodeURIComponent(key) +
+        "=" +
+        encodeURIComponent(data[key])
+    )
+    .join("&");
+}
+
 function enc(plainText) {
   let b64 = CryptoJS.AES.encrypt(plainText, "0038").toString();
   let e64 = CryptoJS.enc.Base64.parse(b64);
@@ -33,4 +44,4 @@ function isAuth(req, res, next) {
   }
 }
 
-export { enc, dec };
+export { enc, dec, encodeFromData };
