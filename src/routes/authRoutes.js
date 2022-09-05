@@ -52,17 +52,58 @@ router.get("/getUser", async (req, res) => {
     .then((response) => response.json())
     .then(async (user) => {
       const playlists = await fetchPlaylists(dec_at, user);
+
+      // const playlistTracks = await Promise.all(
+      //   playlists.map(async (playlist) => {
+      //     return await fetchPlaylistTracks(dec_at, playlist.id);
+      //   })
+      // );
+
       const data = {
         playlists,
+        // playlistTracks,
         id: user.id,
         href: user.external_urls.spotify,
         image: user.images[0].url,
         name: user.display_name,
       };
-      console.log(data);
       res.json(data);
     });
 });
+
+router.get("/setCookie", (req, res) => {
+  let { cookie } = req.query;
+  res.cookie("at", `${cookie}`, {
+    expires: new Date(Date.now() + 2 * (60 * 60 * 1000)),
+    httpOnly: true,
+  });
+  res.send("");
+});
+
+// async function fetchPlaylistTracks(dec_at, id) {
+//   const data = await fetch(
+//     `https://api.spotify.com/v1/playlists/${id}/tracks?limit=50`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${dec_at}`,
+//         Accept: "application/json",
+//         "Content-Type": "application/x-www-form-urlencoded",
+//       },
+//     }
+//   )
+//     .then((response) => response.json())
+//     .then((data) => {
+//       return data.items.map((d) => ({
+//         url: d.track.external_urls.spotify,
+//         name: d.track.name,
+//         image: d.track.album.images[0].url,
+//         id: d.track.id,
+//         artists: d.track.artists.map((item) => item.name),
+//       }));
+//     })
+//     .catch((err) => console.log(err));
+//   return data;
+// }
 
 async function fetchPlaylists(dec_at, user) {
   const data = await fetch(
@@ -77,38 +118,12 @@ async function fetchPlaylists(dec_at, user) {
   )
     .then((response) => response.json())
     .then((data) => {
-      return data.items;
+      return data.items.map((playlist) => ({
+        id: playlist.id,
+        name: playlist.name,
+        image: playlist.images[0].url,
+      }));
     })
     .catch((err) => console.log(err));
   return data;
 }
-
-router.get("/setCookie", (req, res) => {
-  let { cookie } = req.query;
-  res.cookie("at", `${cookie}`, {
-    expires: new Date(Date.now() + 2 * (60 * 60 * 1000)),
-    httpOnly: true,
-  });
-  res.send("");
-});
-
-// router.post("/getUserPlaylist", async (req, res) => {
-//   const access_token = req.headers.cookie;
-//   const at = access_token.split("=")[1];
-//   console.log(req);
-//   await fetch(
-//     `https://api.spotify.com/v1/users/${req.body}/playlists`,
-//     {
-//       headers: {
-//         Authorization: `Bearer ${dec(at)}`,
-//         Accept: "application/json",
-//         "Content-Type": "application/x-www-form-urlencoded",
-//       },
-//     }
-//   )
-//     .then((response) => response.json())
-//     .then((data) => {
-//       console.log(data);
-//       res.json(data.items);
-//     });
-// });
