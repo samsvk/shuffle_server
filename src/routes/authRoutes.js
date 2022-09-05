@@ -65,7 +65,25 @@ router.get("/getUser", async (req, res) => {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       res.json(data);
+    });
+});
+
+router.post("/getUserPlaylist", async (req, res) => {
+  const { access_token } = req.body;
+  await fetch(
+    `https://api.spotify.com/v1/users/${req.body.id}/playlists`,
+    {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      res.json(data.items);
     });
 });
