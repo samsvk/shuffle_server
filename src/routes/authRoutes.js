@@ -44,12 +44,28 @@ router.get("/logged", async (req, res) => {
     .then((resp) => resp.json())
     .then((data) => {
       let query = querystring.stringify(data);
-      let token = query.split("=")[1];
-      const encryptedAccessToken = encrypt(token).toString();
-      res.redirect(
-        `http://localhost:3000/lobby?user=${encryptedAccessToken}`
-      );
+      // let token = query.split("=")[1];
+      // const encryptedAccessToken = encrypt(token).toString();
+      // res.redirect(
+      //   `http://localhost:3000/lobby?user=${encryptedAccessToken}`
+      // );
+
+      res.redirect(`http://localhost:3000/lobby?${query}`);
     });
 });
 
-router.get("/getUser/:token", async (req, res) => {});
+router.get("/getUser", async (req, res) => {
+  const { access_token } = req.query;
+  await fetch("https://api.spotify.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      res.json(data);
+    });
+});
