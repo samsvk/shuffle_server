@@ -51,35 +51,48 @@ router.get("/logged", async (req, res) => {
 });
 
 router.get("/getUser", async (req, res) => {
-  const { at } = req.query;
-  const access_token = dec(at);
+  const access_token = req.headers.cookie;
+  const at = access_token.split("=")[1];
   await fetch("https://api.spotify.com/v1/me", {
     headers: {
-      Authorization: `Bearer ${access_token}`,
+      Authorization: `Bearer ${dec(at)}`,
       Accept: "application/json",
       "Content-Type": "application/x-www-form-urlencoded",
     },
   })
     .then((response) => response.json())
     .then((data) => {
+      console.log(data);
       res.json(data);
     });
 });
 
-router.post("/getUserPlaylist", async (req, res) => {
-  const { access_token } = req.body;
-  await fetch(
-    `https://api.spotify.com/v1/users/${req.body.id}/playlists`,
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        Accept: "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      res.json(data.items);
-    });
+// router.post("/getUserPlaylist", async (req, res) => {
+//   const access_token = req.headers.cookie;
+//   const at = access_token.split("=")[1];
+//   console.log(req);
+//   await fetch(
+//     `https://api.spotify.com/v1/users/${req.body}/playlists`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${dec(at)}`,
+//         Accept: "application/json",
+//         "Content-Type": "application/x-www-form-urlencoded",
+//       },
+//     }
+//   )
+//     .then((response) => response.json())
+//     .then((data) => {
+//       console.log(data);
+//       res.json(data.items);
+//     });
+// });
+
+router.get("/setCookie", (req, res) => {
+  let { cookie } = req.query;
+  res.cookie("at", `${cookie}`, {
+    expires: new Date(Date.now() + 2 * (60 * 60 * 1000)),
+    httpOnly: true,
+  });
+  res.send("");
 });
