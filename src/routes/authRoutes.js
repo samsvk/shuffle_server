@@ -58,7 +58,7 @@ router.get("/getUser", async (req, res) => {
       //     return await fetchPlaylistTracks(dec_at, playlist.id);
       //   })
       // );
-
+      console.log(user);
       const data = {
         playlists,
         // playlistTracks,
@@ -66,6 +66,7 @@ router.get("/getUser", async (req, res) => {
         href: user.external_urls.spotify,
         image: user.images[0].url,
         name: user.display_name,
+        followers: user.followers.total,
       };
       res.json(data);
     });
