@@ -118,10 +118,16 @@ async function fetchPlaylists(dec_at, user) {
   )
     .then((response) => response.json())
     .then((data) => {
+      console.log(data.items[2]);
       return data.items.map((playlist) => ({
         id: playlist.id,
         name: playlist.name,
         image: playlist.images[0].url,
+        length: playlist.tracks.total,
+        owner: {
+          name: playlist.owner.display_name,
+          url: playlist.owner.external_urls.spotify,
+        },
       }));
     })
     .catch((err) => console.log(err));
