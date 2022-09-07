@@ -78,7 +78,6 @@ router.post("/getUserPlaylistTracks", async (req, res) => {
     [],
     playlistTracks.map((playlist) => playlist)
   );
-  console.log(final);
   res.status(200).json({
     data: final,
   });

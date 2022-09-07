@@ -65,7 +65,7 @@ router.get("/", async (req, res) => {
       }
     )
       .then((resp) => resp.json())
-      .then((data) => {
+      .then(async (data) => {
         const nums = new Set();
         while (nums.size !== 5) {
           nums.add(Math.floor(Math.random() * 49) + 1);
@@ -84,7 +84,7 @@ router.get("/", async (req, res) => {
           };
         });
 
-        Promise.all(info).then((results) => {
+        await Promise.all(info).then((results) => {
           res.status(200).json({
             data: results,
           });
