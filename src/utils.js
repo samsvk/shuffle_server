@@ -26,14 +26,24 @@ function dec(cipherText) {
   return plain;
 }
 
-function isAuth(req, res, next) {
-  if (req.user) {
-    console.log(req.user.username);
-    next();
-  } else {
-    console.log("user is not logged in KEKW");
-    res.redirect("/");
+function shuffle(array) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex != 0) {
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
   }
+
+  return array;
 }
 
-export { enc, dec, encodeFromData };
+export { enc, dec, encodeFromData, shuffle };

@@ -1,7 +1,7 @@
 import express from "express";
 import fetch from "node-fetch";
 import querystring from "querystring";
-import { enc, dec, encodeFromData } from "../utils.js";
+import { enc, dec, encodeFromData, shuffle } from "../utils.js";
 
 export const router = express.Router();
 
@@ -78,8 +78,10 @@ router.post("/getUserPlaylistTracks", async (req, res) => {
     [],
     playlistTracks.map((playlist) => playlist)
   );
+  console.log(final[0]);
+  console.log(shuffle(final)[0]);
   res.status(200).json({
-    data: final,
+    data: shuffle(final),
   });
 });
 
@@ -122,7 +124,7 @@ async function fetchPlaylists(dec_at, user) {
 
 async function fetchPlaylistTracks(dec_at, id) {
   const data = await fetch(
-    `https://api.spotify.com/v1/playlists/${id}/tracks?limit=50`,
+    `https://api.spotify.com/v1/playlists/${id}/tracks?limit=10`,
     {
       headers: {
         Authorization: `Bearer ${dec_at}`,
