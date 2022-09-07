@@ -52,16 +52,8 @@ router.get("/getUser", async (req, res) => {
     .then((response) => response.json())
     .then(async (user) => {
       const playlists = await fetchPlaylists(dec_at, user);
-
-      // const playlistTracks = await Promise.all(
-      //   playlists.map(async (playlist) => {
-      //     return await fetchPlaylistTracks(dec_at, playlist.id);
-      //   })
-      // );
-      console.log(user);
       const data = {
         playlists,
-        // playlistTracks,
         id: user.id,
         href: user.external_urls.spotify,
         image: user.images[0].url,
@@ -72,6 +64,26 @@ router.get("/getUser", async (req, res) => {
     });
 });
 
+router.post("/getUserPlaylistTracks", async (req, res) => {
+  const access_token = req.headers.cookie;
+  const at = access_token.split("=")[1];
+  const dec_at = dec(at);
+  const playlists = req.body;
+  const playlistTracks = await Promise.all(
+    playlists.map(async (playlist) => {
+      return await fetchPlaylistTracks(dec_at, playlist.id);
+    })
+  );
+  const final = [].concat.apply(
+    [],
+    playlistTracks.map((playlist) => playlist)
+  );
+  console.log(final);
+  res.status(200).json({
+    data: final,
+  });
+});
+
 router.get("/setCookie", (req, res) => {
   let { cookie } = req.query;
   res.cookie("at", `${cookie}`, {
@@ -80,31 +92,6 @@ router.get("/setCookie", (req, res) => {
   });
   res.send("");
 });
-
-// async function fetchPlaylistTracks(dec_at, id) {
-//   const data = await fetch(
-//     `https://api.spotify.com/v1/playlists/${id}/tracks?limit=50`,
-//     {
-//       headers: {
-//         Authorization: `Bearer ${dec_at}`,
-//         Accept: "application/json",
-//         "Content-Type": "application/x-www-form-urlencoded",
-//       },
-//     }
-//   )
-//     .then((response) => response.json())
-//     .then((data) => {
-//       return data.items.map((d) => ({
-//         url: d.track.external_urls.spotify,
-//         name: d.track.name,
-//         image: d.track.album.images[0].url,
-//         id: d.track.id,
-//         artists: d.track.artists.map((item) => item.name),
-//       }));
-//     })
-//     .catch((err) => console.log(err));
-//   return data;
-// }
 
 async function fetchPlaylists(dec_at, user) {
   const data = await fetch(
@@ -119,7 +106,6 @@ async function fetchPlaylists(dec_at, user) {
   )
     .then((response) => response.json())
     .then((data) => {
-      console.log(data.items[2]);
       return data.items.map((playlist) => ({
         id: playlist.id,
         name: playlist.name,
@@ -129,6 +115,31 @@ async function fetchPlaylists(dec_at, user) {
           name: playlist.owner.display_name,
           url: playlist.owner.external_urls.spotify,
         },
+      }));
+    })
+    .catch((err) => console.log(err));
+  return data;
+}
+
+async function fetchPlaylistTracks(dec_at, id) {
+  const data = await fetch(
+    `https://api.spotify.com/v1/playlists/${id}/tracks?limit=50`,
+    {
+      headers: {
+        Authorization: `Bearer ${dec_at}`,
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      return data.items.map((d) => ({
+        url: d.track.external_urls.spotify,
+        name: d.track.name,
+        image: d.track.album.images[0].url,
+        id: d.track.id,
+        artists: d.track.artists.map((item) => item.name),
       }));
     })
     .catch((err) => console.log(err));
