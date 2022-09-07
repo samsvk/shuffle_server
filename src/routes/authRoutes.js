@@ -115,7 +115,14 @@ router.post("/createUserPlaylist", async (req, res) => {
     }
   )
     .then((response) => response.json())
-    .then((data) => console.log(data));
+    .then(async (data) => {
+      const songs = req.body.playlistTunes
+        .map((playlist) => playlist.uri)
+        .join(",");
+
+      console.log(songs);
+      await addSongToPlaylist(dec_at, data.id, songs);
+    });
 });
 
 router.get("/setCookie", (req, res) => {
@@ -169,15 +176,31 @@ async function fetchPlaylistTracks(dec_at, id, length) {
   )
     .then((response) => response.json())
     .then((data) => {
-      // console.log(data.items);
       return data.items.map((d) => ({
         url: d.track.external_urls.spotify,
         name: d.track.name,
         image: d.track.album.images[0].url,
         id: d.track.id,
         artists: d.track.artists.map((item) => item.name),
+        uri: d.track.uri,
       }));
     })
     .catch((err) => console.log(err));
   return data;
+}
+
+async function addSongToPlaylist(dec_at, id, songs) {
+  await fetch(
+    `	https://api.spotify.com/v1/playlists/${id}/tracks?uris=${songs}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${dec_at}`,
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  )
+    .then((response) => response.json())
+    .then((data) => console.log(data));
 }
