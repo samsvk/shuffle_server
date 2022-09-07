@@ -1,7 +1,13 @@
 import express from "express";
 import fetch from "node-fetch";
 import querystring from "querystring";
-import { enc, dec, encodeFromData, shuffle } from "../utils.js";
+import {
+  enc,
+  dec,
+  encodeFromData,
+  shuffle,
+  randomInteger,
+} from "../utils.js";
 
 export const router = express.Router();
 
@@ -51,9 +57,8 @@ router.get("/getUser", async (req, res) => {
   })
     .then((response) => response.json())
     .then(async (user) => {
-      const playlists = await fetchPlaylists(dec_at, user);
       const data = {
-        playlists,
+        playlists: await fetchPlaylists(dec_at, user),
         id: user.id,
         href: user.external_urls.spotify,
         image: user.images[0].url,
@@ -71,15 +76,17 @@ router.post("/getUserPlaylistTracks", async (req, res) => {
   const playlists = req.body;
   const playlistTracks = await Promise.all(
     playlists.map(async (playlist) => {
-      return await fetchPlaylistTracks(dec_at, playlist.id);
+      return await fetchPlaylistTracks(
+        dec_at,
+        playlist.id,
+        playlist.length
+      );
     })
   );
   const final = [].concat.apply(
     [],
     playlistTracks.map((playlist) => playlist)
   );
-  console.log(final[0]);
-  console.log(shuffle(final)[0]);
   res.status(200).json({
     data: shuffle(final),
   });
@@ -122,9 +129,10 @@ async function fetchPlaylists(dec_at, user) {
   return data;
 }
 
-async function fetchPlaylistTracks(dec_at, id) {
+async function fetchPlaylistTracks(dec_at, id, length) {
+  const offset = randomInteger(0, length - 20);
   const data = await fetch(
-    `https://api.spotify.com/v1/playlists/${id}/tracks?limit=10`,
+    `https://api.spotify.com/v1/playlists/${id}/tracks?offset=${offset}&limit=20`,
     {
       headers: {
         Authorization: `Bearer ${dec_at}`,
@@ -135,6 +143,7 @@ async function fetchPlaylistTracks(dec_at, id) {
   )
     .then((response) => response.json())
     .then((data) => {
+      // console.log(data.items);
       return data.items.map((d) => ({
         url: d.track.external_urls.spotify,
         name: d.track.name,

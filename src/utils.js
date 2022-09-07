@@ -26,6 +26,10 @@ function dec(cipherText) {
   return plain;
 }
 
+function randomInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function shuffle(array) {
   let currentIndex = array.length,
     randomIndex;
@@ -46,4 +50,4 @@ function shuffle(array) {
   return array;
 }
 
-export { enc, dec, encodeFromData, shuffle };
+export { enc, dec, encodeFromData, shuffle, randomInteger };
