@@ -2,21 +2,27 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { corsDefaults } from "./consts.js";
-// import { router as emailRouter } from "./routes/index.js";
-// import { db } from "./models/db.js";
-// db.then(() => console.log("DB connected")).catch((err) =>
-//   console.log(err)
-// );
-// const PORT = process.env.PORT || 3001;
 import { router as authRouter } from "./routes/authRoutes.js";
 import { router as homeRouter } from "./routes/homeRoutes.js";
+import { Server } from "socket.io";
+import http from "http";
+
 dotenv.config();
 const PORT = process.env.PORT;
 const app = express();
+const server = http.createServer(app);
 
 app.use(cors(corsDefaults));
 app.use(express.json());
-app.listen(PORT, () => console.log(`Now listening on ${PORT}`));
+server.listen(PORT);
 
 app.use("/", authRouter);
 app.use("/home", homeRouter);
+
+const io = new Server(server, {
+  cors: ["http://localhost:3000"],
+});
+
+io.on("connection", (socket) => {
+  console.log(socket.id);
+});
