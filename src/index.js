@@ -23,6 +23,25 @@ const io = new Server(server, {
   cors: ["http://localhost:3000"],
 });
 
+const lobbies = [];
+
 io.on("connection", (socket) => {
-  console.log(socket.id);
+  socket.on("joinLobby", (userObj) => {
+    socket.join(userObj.lobbyData.id);
+    const lobby = lobbies.find(
+      (lobby) => lobby.id === userObj.lobbyData.id
+    );
+
+    if (lobby) {
+      lobby.users = [...lobby.users, userObj.userData];
+      io.to(userObj.lobbyData.id).emit("updateLobbyData", lobby);
+    } else {
+      const lobby = {
+        users: [userObj.userData],
+        id: userObj.lobbyData.id,
+      };
+      lobbies.push(lobby);
+      io.to(userObj.lobbyData.id).emit("updateLobbyData", lobby);
+    }
+  });
 });
