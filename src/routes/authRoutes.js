@@ -119,8 +119,6 @@ router.post("/createUserPlaylist", async (req, res) => {
       const songs = req.body.playlistTunes
         .map((playlist) => playlist.uri)
         .join(",");
-
-      console.log(songs);
       await addSongToPlaylist(dec_at, data.id, songs);
     });
 });
@@ -202,5 +200,5 @@ async function addSongToPlaylist(dec_at, id, songs) {
     }
   )
     .then((response) => response.json())
-    .then((data) => console.log(data));
+    .then((data) => null);
 }
