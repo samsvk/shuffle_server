@@ -67,7 +67,6 @@ io.on("connection", (socket) => {
       const _l = upsertLobby({
         ...lobby,
         users: [...lobby.users, user],
-        tracks: [],
       });
       io.to(lobby.id).emit("updateLobbyData", _l); // emit to the entire lobby userbase the new member
     } else {
