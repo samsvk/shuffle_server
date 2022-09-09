@@ -38,8 +38,10 @@ const upsertLobby = (lobbyObj) => {
 
 const getUser = (id) => users.find((user) => user._id === id);
 const createUser = (user) => users.push(user);
-const deleteUser = (user) =>
-  users.filter((u) => u._id !== user._id);
+const deleteUser = (id) => {
+  users = users.filter((u) => u._id !== id);
+};
+
 const upsertUser = (userObj) => {
   const userExists = getUser(userObj._id);
   if (!userExists) return createUser(userObj);
