@@ -32,6 +32,10 @@ const createLobby = (lobby) => {
   lobbies.push(lobby);
   return lobby;
 };
+const deleteLobby = (id) => {
+  lobbies = lobbies.filter((l) => l.id !== id);
+};
+
 const upsertLobby = (lobbyObj) => {
   const lobbyExists = getLobby(lobbyObj.id);
   if (!lobbyExists) return createLobby(lobbyObj);
@@ -98,5 +102,8 @@ io.on("connection", (socket) => {
     });
     deleteUser(user._id);
     io.to(lobby.id).emit("updateLobbyData", _l);
+    if (_l.users.length === 0) {
+      deleteLobby(_l.id);
+    }
   });
 });
