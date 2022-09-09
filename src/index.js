@@ -23,25 +23,73 @@ const io = new Server(server, {
   cors: ["http://localhost:3000"],
 });
 
-const lobbies = [];
+let lobbies = [];
+let users = [];
 
 io.on("connection", (socket) => {
+  const _id = socket.id;
+
   socket.on("joinLobby", (userObj) => {
-    socket.join(userObj.lobbyData.id);
+    let newUser = { ...userObj, _id };
+    socket.join(newUser.lobbyData.id);
+    users = [...users, newUser];
+
     const lobby = lobbies.find(
-      (lobby) => lobby.id === userObj.lobbyData.id
+      (lobby) => lobby.id === newUser.lobbyData.id
     );
 
     if (lobby) {
-      lobby.users = [...lobby.users, userObj.userData];
-      io.to(userObj.lobbyData.id).emit("updateLobbyData", lobby);
+      lobby.users = [...lobby.users, newUser];
+      io.to(newUser.lobbyData.id).emit("updateLobbyData", lobby);
     } else {
       const lobby = {
-        users: [userObj.userData],
-        id: userObj.lobbyData.id,
+        users: [newUser],
+        id: newUser.lobbyData.id,
       };
       lobbies.push(lobby);
-      io.to(userObj.lobbyData.id).emit("updateLobbyData", lobby);
+      io.to(newUser.lobbyData.id).emit("updateLobbyData", lobby);
     }
+    console.log(users, "after joined ");
+  });
+
+  socket.on("disconnect", () => {
+    const disconUser = users.find(
+      (user) => user._id === socket.id
+    );
+    const usersWithoutDiscon = users.filter(
+      (user) => user._id !== disconUser._id
+    );
+    io.to(disconUser.lobbyData.id).emit("updateLobbyData", {
+      ...disconUser.lobbyData,
+      users: usersWithoutDiscon,
+    });
+    users = usersWithoutDiscon;
+    console.log(users, "once disconnected");
   });
 });
+
+// class Lobby {
+//   constructor() {
+//     this.id = 0;
+//     this.users = [];
+//   }
+
+//   static create(room) {
+//     const roomId = `R_${room.id}`;
+//     const alreadyExists = Room.findById(roomId);
+
+//     if (alreadyExists) return null;
+//     const withDefaults = {
+//       ...room,
+//       id: roomId,
+//       users: [],
+//     };
+//     return new Room(withDefaults);
+//   }
+
+//   static findById(roomId) {
+//     const room = store.findRoomById(roomId);
+//     if (!room) return null;
+//     return new Room(room);
+//   }
+// }
