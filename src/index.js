@@ -28,16 +28,23 @@ let users = [];
 
 const getLobby = (id) =>
   lobbies.find((lobby) => lobby.id === id);
-const createLobby = (lobby) => lobbies.push(lobby);
+const createLobby = (lobby) => {
+  lobbies.push(lobby);
+  return lobby;
+};
 const upsertLobby = (lobbyObj) => {
   const lobbyExists = getLobby(lobbyObj.id);
   if (!lobbyExists) return createLobby(lobbyObj);
   const index = lobbies.findIndex((l) => l.id === lobbyObj.id);
   lobbies[index] = lobbyObj;
+  return lobbies[index];
 };
 
 const getUser = (id) => users.find((user) => user._id === id);
-const createUser = (user) => users.push(user);
+const createUser = (user) => {
+  users.push(user);
+  return user;
+};
 const deleteUser = (id) => {
   users = users.filter((u) => u._id !== id);
 };
@@ -47,6 +54,7 @@ const upsertUser = (userObj) => {
   if (!userExists) return createUser(userObj);
   const index = users.findIndex((u) => u.id === userObj._id);
   users[index] = userObj;
+  return users[index];
 };
 
 io.on("connection", (socket) => {
@@ -55,46 +63,41 @@ io.on("connection", (socket) => {
     const user = getUser(socket.id);
     const lobby = getLobby(user.lobbyData.id); // check if lobby exists
     socket.join(user.lobbyData.id); // join room/lobby via id provided in emitter
-
     if (lobby) {
-      const _l = { ...lobby, users: [...lobby.users, user] };
-      upsertLobby(_l);
-      // _l.users.map((user) => {
-      //   upsertUser({
-      //     user,
-      //     lobbyData: {
-      //       ...user.lobyData,
-      //       users: [...lobby.users, user],
-      //     },
-      //   });
-      // });
+      const _l = upsertLobby({
+        ...lobby,
+        users: [...lobby.users, user],
+        tracks: [],
+      });
       io.to(lobby.id).emit("updateLobbyData", _l); // emit to the entire lobby userbase the new member
     } else {
-      upsertLobby({
+      const _l = upsertLobby({
         users: [user],
         id: user.lobbyData.id,
+        tracks: [],
       }); // create lobby if required;
-      io.to(getLobby(user.lobbyData.id).id).emit(
-        "updateLobbyData",
-        getLobby(user.lobbyData.id)
-      ); // send data to the members of new lobby;
+      io.to(_l.id).emit("updateLobbyData", _l); // send data to the members of new lobby;
     }
+  });
+
+  socket.on("sendPlaylistTracks", (dataObj) => {
+    const lobby = getLobby(dataObj.id);
+    const _l = upsertLobby({
+      ...lobby,
+      tracks: [...lobby.tracks, ...dataObj.playlistTunes],
+    });
+    io.to(lobby.id).emit("updateLobbyData", _l);
   });
 
   socket.on("disconnect", () => {
     const user = getUser(socket.id);
     if (!user) return null;
     const lobby = getLobby(user.lobbyData.id);
-    const temp = {
+    const _l = upsertLobby({
       ...lobby,
       users: lobby.users.filter((u) => u._id !== user._id),
-    };
-    upsertLobby(temp);
+    });
     deleteUser(user._id);
-    io.to(lobby.id).emit("updateLobbyData", temp);
-    console.log(
-      users.map((item) => item.lobbyData.users),
-      "users"
-    );
+    io.to(lobby.id).emit("updateLobbyData", _l);
   });
 });
