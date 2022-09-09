@@ -59,6 +59,15 @@ io.on("connection", (socket) => {
     if (lobby) {
       const _l = { ...lobby, users: [...lobby.users, user] };
       upsertLobby(_l);
+      // _l.users.map((user) => {
+      //   upsertUser({
+      //     user,
+      //     lobbyData: {
+      //       ...user.lobyData,
+      //       users: [...lobby.users, user],
+      //     },
+      //   });
+      // });
       io.to(lobby.id).emit("updateLobbyData", _l); // emit to the entire lobby userbase the new member
     } else {
       upsertLobby({
@@ -83,5 +92,9 @@ io.on("connection", (socket) => {
     upsertLobby(temp);
     deleteUser(user._id);
     io.to(lobby.id).emit("updateLobbyData", temp);
+    console.log(
+      users.map((item) => item.lobbyData.users),
+      "users"
+    );
   });
 });
