@@ -61,6 +61,14 @@ const upsertUser = (userObj) => {
   return users[index];
 };
 
+const logAllUsers = () => {
+  console.log(users, "users in store");
+};
+
+const logAllLobbies = () => {
+  console.log(lobbies, `lobbies in store`);
+};
+
 io.on("connection", (socket) => {
   socket.on("joinLobby", (userObj) => {
     upsertUser({ _id: socket.id, ...userObj });
@@ -72,6 +80,12 @@ io.on("connection", (socket) => {
         ...lobby,
         users: [...lobby.users, user],
       });
+
+      _l.users.map((user) => {
+        const _u = getUser(user._id);
+        upsertUser({ ..._u, lobbyData: _l });
+      });
+
       io.to(lobby.id).emit("updateLobbyData", _l); // emit to the entire lobby userbase the new member
     } else {
       const _l = upsertLobby({
@@ -97,6 +111,11 @@ io.on("connection", (socket) => {
       tracks: shuffle([...lobby.tracks, ...dataObj.playlistTunes]),
     });
 
+    _l.users.map((user) => {
+      const _u = getUser(user._id);
+      upsertUser({ ..._u, lobbyData: _l });
+    });
+
     if (
       lobby?.users
         .map((user) => getUser(user._id))
@@ -114,10 +133,19 @@ io.on("connection", (socket) => {
       ...lobby,
       users: lobby.users.filter((u) => u._id !== user._id),
     });
+
+    _l.users.map((user) => {
+      const _u = getUser(user._id);
+      upsertUser({ ..._u, lobbyData: _l });
+    });
+
     deleteUser(user._id);
     io.to(lobby.id).emit("updateLobbyData", _l);
     if (_l.users.length === 0) {
       deleteLobby(_l.id);
     }
   });
+
+  socket.on("logUsers", () => logAllUsers());
+  socket.on("logLobbies", () => logAllLobbies());
 });
