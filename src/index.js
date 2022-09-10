@@ -6,6 +6,7 @@ import { router as authRouter } from "./routes/authRoutes.js";
 import { router as homeRouter } from "./routes/homeRoutes.js";
 import { Server } from "socket.io";
 import http from "http";
+import { shuffle } from "./utils.js";
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -26,8 +27,7 @@ const io = new Server(server, {
 let lobbies = [];
 let users = [];
 
-const getLobby = (id) =>
-  lobbies.find((lobby) => lobby.id === id);
+const getLobby = (id) => lobbies.find((lobby) => lobby.id === id);
 const createLobby = (lobby) => {
   lobbies.push(lobby);
   return lobby;
@@ -56,7 +56,7 @@ const deleteUser = (id) => {
 const upsertUser = (userObj) => {
   const userExists = getUser(userObj._id);
   if (!userExists) return createUser(userObj);
-  const index = users.findIndex((u) => u.id === userObj._id);
+  const index = users.findIndex((u) => u._id === userObj._id);
   users[index] = userObj;
   return users[index];
 };
@@ -85,11 +85,25 @@ io.on("connection", (socket) => {
 
   socket.on("sendPlaylistTracks", (dataObj) => {
     const lobby = getLobby(dataObj.id);
+    const user = getUser(socket.id);
+    upsertUser({
+      ...user,
+      userData: { ...user.userData, isReady: true },
+      tracks: [...dataObj.playlistTunes],
+    });
+
     const _l = upsertLobby({
       ...lobby,
-      tracks: [...lobby.tracks, ...dataObj.playlistTunes],
+      tracks: shuffle([...lobby.tracks, ...dataObj.playlistTunes]),
     });
-    io.to(lobby.id).emit("updateLobbyData", _l);
+
+    if (
+      lobby?.users
+        .map((user) => getUser(user._id))
+        .every((u) => u.userData.isReady === true)
+    ) {
+      io.to(lobby.id).emit("updateLobbyData", _l);
+    }
   });
 
   socket.on("disconnect", () => {
