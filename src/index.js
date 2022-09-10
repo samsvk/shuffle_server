@@ -69,41 +69,41 @@ const logAllLobbies = () => {
   console.log(lobbies, `lobbies in store`);
 };
 
+const getUserDataFromLobbyIds = (id) => {
+  const lobby = getLobby(id);
+  return lobby.users.map((user) => getUser(user));
+};
+
 io.on("connection", (socket) => {
   socket.on("joinLobby", (userObj) => {
-    upsertUser({ _id: socket.id, ...userObj });
-    const user = getUser(socket.id);
-    const lobby = getLobby(user.lobbyData.id); // check if lobby exists
-    socket.join(user.lobbyData.id); // join room/lobby via id provided in emitter
+    const user = upsertUser({ _id: socket.id, ...userObj });
+    const lobby = getLobby(user.lobbyId);
+    socket.join(user.lobbyId);
     if (lobby) {
       const _l = upsertLobby({
         ...lobby,
-        users: [...lobby.users, user],
+        users: [...lobby.users, user._id],
       });
-
-      _l.users.map((user) => {
-        const _u = getUser(user._id);
-        upsertUser({ ..._u, lobbyData: _l });
-      });
-
-      io.to(lobby.id).emit("updateLobbyData", _l); // emit to the entire lobby userbase the new member
+      io.to(lobby.id).emit("updateLobbyData", _l);
+      io.to(lobby.id).emit("setLobbyUsers", getUserDataFromLobbyIds(lobby.id));
     } else {
       const _l = upsertLobby({
-        users: [user],
-        id: user.lobbyData.id,
+        users: [user._id],
+        id: user.lobbyId,
         tracks: [],
-      }); // create lobby if required;
-      io.to(_l.id).emit("updateLobbyData", _l); // send data to the members of new lobby;
+      });
+      io.to(_l.id).emit("updateLobbyData", _l);
+      io.to(_l.id).emit("setLobbyUsers", getUserDataFromLobbyIds(_l.id));
     }
   });
 
   socket.on("sendPlaylistTracks", (dataObj) => {
     const lobby = getLobby(dataObj.id);
     const user = getUser(socket.id);
+
     upsertUser({
       ...user,
-      userData: { ...user.userData, isReady: true },
-      tracks: [...dataObj.playlistTunes],
+      isReady: true,
     });
 
     const _l = upsertLobby({
@@ -111,36 +111,25 @@ io.on("connection", (socket) => {
       tracks: shuffle([...lobby.tracks, ...dataObj.playlistTunes]),
     });
 
-    _l.users.map((user) => {
-      const _u = getUser(user._id);
-      upsertUser({ ..._u, lobbyData: _l });
-    });
-
-    if (
-      lobby?.users
-        .map((user) => getUser(user._id))
-        .every((u) => u.userData.isReady === true)
-    ) {
-      io.to(lobby.id).emit("updateLobbyData", _l);
+    if (_l.users.map((user) => getUser(user)).every((u) => u.isReady === true)) {
+      io.to(_l.id).emit("updateLobbyData", _l);
+      io.to(_l.id).emit("setLobbyUsers", getUserDataFromLobbyIds(_l.id));
     }
   });
 
   socket.on("disconnect", () => {
     const user = getUser(socket.id);
     if (!user) return null;
-    const lobby = getLobby(user.lobbyData.id);
+    const lobby = getLobby(user.lobbyId);
     const _l = upsertLobby({
       ...lobby,
-      users: lobby.users.filter((u) => u._id !== user._id),
-    });
-
-    _l.users.map((user) => {
-      const _u = getUser(user._id);
-      upsertUser({ ..._u, lobbyData: _l });
+      users: lobby.users.filter((u) => u !== user._id),
     });
 
     deleteUser(user._id);
     io.to(lobby.id).emit("updateLobbyData", _l);
+    io.to(_l.id).emit("setLobbyUsers", getUserDataFromLobbyIds(_l.id));
+
     if (_l.users.length === 0) {
       deleteLobby(_l.id);
     }
