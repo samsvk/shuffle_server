@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
         ...lobby,
         users: [...lobby.users, user._id],
       });
-      io.to(lobby.id).emit("updateLobbyData", _l);
+      // io.to(lobby.id).emit("updateLobbyData", _l);
       io.to(lobby.id).emit("setLobbyUsers", getUserDataFromLobbyIds(lobby.id));
     } else {
       const _l = upsertLobby({
@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
         id: user.lobbyId,
         tracks: [],
       });
-      io.to(_l.id).emit("updateLobbyData", _l);
+      // io.to(_l.id).emit("updateLobbyData", _l);
       io.to(_l.id).emit("setLobbyUsers", getUserDataFromLobbyIds(_l.id));
     }
   });
