@@ -164,12 +164,15 @@ async function fetchPlaylistTracks(dec_at, id, length) {
     .then((response) => response.json())
     .then((data) => {
       return data.items.map((d) => ({
+        added: d.added_at,
         url: d.track.external_urls.spotify,
         name: d.track.name,
         image: d.track.album.images[0].url,
         id: d.track.id,
         artists: d.track.artists.map((item) => item.name),
         uri: d.track.uri,
+        length: d.track.duration_ms,
+        album: d.track.album.name,
       }));
     })
     .catch((err) => console.log(err));
