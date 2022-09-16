@@ -9,35 +9,29 @@ const basic = Buffer.from(
 ).toString("base64");
 
 const getAccessToken = async () => {
-  const response = await fetch(
-    `https://accounts.spotify.com/api/token`,
-    {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${basic}`,
-      },
-      body: new URLSearchParams({
-        grant_type: "client_credentials",
-      }),
-    }
-  );
+  const response = await fetch(`https://accounts.spotify.com/api/token`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${basic}`,
+    },
+    body: new URLSearchParams({
+      grant_type: "client_credentials",
+    }),
+  });
 
   return response.json();
 };
 
 async function fetchArtistDetails(access_token, person) {
-  const info = await fetch(
-    `	https://api.spotify.com/v1/artists/${person}`,
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        Accept: "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  )
+  const info = await fetch(`	https://api.spotify.com/v1/artists/${person}`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  })
     .then((resp) => resp.json())
     .then((data) => {
       return {
@@ -54,20 +48,17 @@ router.get("/", async (req, res) => {
   const { access_token } = await getAccessToken();
 
   async function randomSpotifyAritst() {
-    await fetch(
-      `	https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF`,
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-          Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    )
+    await fetch(`	https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF`, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    })
       .then((resp) => resp.json())
       .then(async (data) => {
         const nums = new Set();
-        while (nums.size !== 5) {
+        while (nums.size !== 6) {
           nums.add(Math.floor(Math.random() * 49) + 1);
         }
 
