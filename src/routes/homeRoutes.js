@@ -46,7 +46,6 @@ async function fetchArtistDetails(access_token, person) {
 
 router.get("/", async (req, res) => {
   const { access_token } = await getAccessToken();
-
   async function randomSpotifyAritst() {
     await fetch(`	https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF`, {
       headers: {
@@ -58,10 +57,9 @@ router.get("/", async (req, res) => {
       .then((resp) => resp.json())
       .then(async (data) => {
         const nums = new Set();
-        while (nums.size !== 10) {
-          nums.add(Math.floor(Math.random() * 49) + 1);
+        while (nums.size !== 1) {
+          nums.add(Math.floor(Math.random() * 10) + 1);
         }
-
         const info = [...nums].map(async (item) => {
           const track = data.tracks.items[item].track;
           return {
@@ -74,7 +72,6 @@ router.get("/", async (req, res) => {
             ),
           };
         });
-
         await Promise.all(info).then((results) => {
           res.status(200).json({
             data: results,
