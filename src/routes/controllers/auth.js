@@ -115,15 +115,6 @@ const setCookie = (req, res) => {
   res.send("");
 };
 
-export {
-  login,
-  logged,
-  getUser,
-  getUserPlaylistTracks,
-  createUserPlaylist,
-  setCookie,
-};
-
 async function fetchPlaylists(dec_at, user) {
   const data = await fetch(`https://api.spotify.com/v1/users/${user.id}/playlists`, {
     headers: {
@@ -191,3 +182,12 @@ async function addSongToPlaylist(dec_at, id, songs) {
     .then((response) => response.json())
     .then((data) => null);
 }
+
+export {
+  login,
+  logged,
+  getUser,
+  getUserPlaylistTracks,
+  createUserPlaylist,
+  setCookie,
+};
