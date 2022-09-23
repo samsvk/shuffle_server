@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
       .then((resp) => resp.json())
       .then(async (data) => {
         const nums = new Set();
-        while (nums.size !== 1) {
+        while (nums.size !== 10) {
           nums.add(Math.floor(Math.random() * 10) + 1);
         }
         const info = [...nums].map(async (item) => {
