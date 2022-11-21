@@ -2,6 +2,8 @@
 
 > Shuffle is an online streaming analytics tool built with the purpose to prevent generalised algorithms plaguing OUR music. Shuffle became extremely useful in early development when travelling with my Girlfriend - being in total control of what playlists, genres and how many songs were going to be shuffled allowed us to create some great jams and enjoy the rides.
 
+!(ShuffleImage)[https://i.imgur.com/BxvpK62.png]
+
 #### Overview:
 
 - `routes` - Contains server routes.
